@@ -1,13 +1,41 @@
 package ehu.isad;
 
 import com.google.common.primitives.Chars;
+import javafx.scene.chart.*;
+import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
-public class Cesar {
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
-  private char[] alfabetoa = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
+public class Cesar extends JavaFXElement {
+
+  public static char[] alfabetoa = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
   private int a_ascii = (int) 'A';
+  private BarChart barChart;
 
   public Cesar() {
+  }
+
+  @Override
+  protected Chart getMainChart() {
+    return barChart;
+  }
+
+
+  public  HashMap<String, Integer>  maiztasuna(String kripto) {
+    HashMap<String, Integer> emaitza = new HashMap<>();
+
+    for (int i = 0; i < kripto.length(); i++) {
+      if (kripto.charAt(i) == ' ') continue;
+      Integer zenbat = emaitza.get(""+kripto.charAt(i));
+      zenbat = zenbat == null ? 0 : zenbat;
+      emaitza.put(""+kripto.charAt(i), ++zenbat);
+    }
+
+   return emaitza;
+
   }
 
   public String zifratu(String mezua, int offset) {
@@ -28,7 +56,7 @@ public class Cesar {
     return emaitza;
   }
 
-  private boolean alfabetoan(char karakterea) {
+  public static boolean alfabetoan(char karakterea) {
     return Chars.contains(alfabetoa, karakterea);
   }
 
@@ -60,6 +88,53 @@ public class Cesar {
         "DES, as stated above, is insecure. This is mainly due to the 56-bit key size being too small. In January 1999, distributed.net and the Electronic Frontier Foundation collaborated to publicly break a DES key in 22 hours and 15 minutes (see chronology). There are also some analytical results which demonstrate theoretical weaknesses in the cipher, although they are infeasible to mount in practice. The algorithm is believed to be practically secure in the form of Triple DES, although there are theoretical attacks. This cipher has been superseded by the Advanced Encryption Standard (AES). Furthermore, DES has been withdrawn as a standard by the National Institute of Standards and Technology.\n" +
         "Some documentation makes a distinction between DES  as a standard and as an algorithm, referring to the algorithm as the DEA (Data Encryption Algorithm).";
 
-    System.out.println(new Cesar().zifratu(mezua, 3));
+    Cesar cesar = new Cesar();
+    String kripto = cesar.zifratu(mezua, 3);
+    Map<String, Integer> map = cesar.maiztasuna(kripto);
+
+    Map<String, Integer> filtered = map.entrySet().stream()
+        .filter(x -> alfabetoan(x.getKey().charAt(0)))
+        .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+
+    System.out.println(filtered);
+
+
+    // cesar.draw(filtered);
+
+
+    /* return emaitza.entrySet()
+        .stream()
+        .sorted(Map.Entry.comparingByValue())
+        .collect(Collectors.toList()).toString(); */
+
   }
+
+//  private void draw(Map<String, Integer> filtered) {
+//
+//    try {
+//      startGUI();
+//    } catch (Throwable throwable) {
+//      throwable.printStackTrace();
+//    }
+//
+//    CategoryAxis xAxis    = new CategoryAxis();
+//    xAxis.setLabel("Karakterea");
+//
+//    NumberAxis yAxis = new NumberAxis();
+//    yAxis.setLabel("Maiztasuna");
+//
+//    barChart = new BarChart(xAxis, yAxis);
+//    XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+//    series1.setName("Maiztasuna");
+//    for (Map.Entry<String, Integer> entry : filtered.entrySet()) {
+//      String tmpString = entry.getKey();
+//      Number tmpValue = entry.getValue();
+//      XYChart.Data<String, Number> d = new XYChart.Data<>(tmpString, tmpValue);
+//      System.out.println(d);
+//      series1.getData().add(d);
+//    }
+//    barChart.setTitle("Hizkien maiztasuna");
+//    barChart.getData().addAll(series1);
+//
+//  }
 }

@@ -3,12 +3,91 @@
  */
 package ehu.isad;
 
-public class App {
-    public String getGreeting() {
-        return "Hello world.";
+import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
+import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class App extends Application {
+
+    private HashMap<String, Integer> maiztasuna(String kripto) {
+        HashMap<String, Integer> emaitza = new HashMap<>();
+
+        for (int i = 0; i < kripto.length(); i++) {
+            if (kripto.charAt(i) == ' ') continue;
+            Integer zenbat = emaitza.get(kripto.charAt(i));
+            zenbat = zenbat == null ? 0 : zenbat;
+            emaitza.put(""+kripto.charAt(i), ++zenbat);
+        }
+
+        return emaitza;
+
+    }
+
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        String mezua = "The Data Encryption Standard is a symmetric-key algorithm for the encryption of electronic data. Although its short key length of 56 bits, criticized from the beginning, makes it too insecure for most current applications, it was highly influential in the advancement of modern cryptography.\n" +
+            "Developed in the early 1970s at IBM and based on an earlier design by Horst Feistel, the algorithm was submitted to the National Bureau of Standards (NBS) following the agency's invitation to propose a candidate for the protection of sensitive, unclassified electronic government data. In 1976, after consultation with the National Security Agency (NSA), the NBS eventually selected a slightly modified version (strengthened against differential cryptanalysis, but weakened against brute-force attacks), which was published as an official Federal Information Processing Standard (FIPS) for the United States in 1977.\n" +
+            "The publication of an NSA-approved encryption standard simultaneously resulted in its quick international adoption and widespread academic scrutiny. Controversies arose out of classified design elements, a relatively short key length of the symmetric-key block cipher design, and the involvement of the NSA, nourishing suspicions about a backdoor. Today it is known that the S-boxes that had raised those suspicions were in fact designed by the NSA to actually remove a backdoor they secretly knew (differential cryptanalysis). However, the NSA also ensured that the key size was drastically reduced such that they could break it by brute force attack (the computing power to brute force DES however did not exist in 1975).[2] The intense academic scrutiny the algorithm received over time led to the modern understanding of block ciphers and their cryptanalysis.\n" +
+            "DES, as stated above, is insecure. This is mainly due to the 56-bit key size being too small. In January 1999, distributed.net and the Electronic Frontier Foundation collaborated to publicly break a DES key in 22 hours and 15 minutes (see chronology). There are also some analytical results which demonstrate theoretical weaknesses in the cipher, although they are infeasible to mount in practice. The algorithm is believed to be practically secure in the form of Triple DES, although there are theoretical attacks. This cipher has been superseded by the Advanced Encryption Standard (AES). Furthermore, DES has been withdrawn as a standard by the National Institute of Standards and Technology.\n" +
+            "Some documentation makes a distinction between DES  as a standard and as an algorithm, referring to the algorithm as the DEA (Data Encryption Algorithm).";
+
+
+        Cesar cesar = new Cesar();
+        String kripto = cesar.zifratu(mezua, 3);
+        Map<String, Integer> map = cesar.maiztasuna(kripto);
+
+        Map<String, Integer> filtered = map.entrySet().stream()
+            .filter(x -> Cesar.alfabetoan(x.getKey().charAt(0)))
+            .collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+
+        System.out.println(filtered);
+
+        primaryStage.setTitle("BarChart Experiments");
+
+        CategoryAxis xAxis    = new CategoryAxis();
+        xAxis.setLabel("Karakterea");
+
+        NumberAxis yAxis = new NumberAxis();
+        yAxis.setLabel("Maiztasuna");
+
+        BarChart barChart = new BarChart(xAxis, yAxis);
+        XYChart.Series<String, Number> series1 = new XYChart.Series<>();
+        // series1.setName("Maiztasuna");
+       barChart.setLegendVisible(false);
+
+
+        for (Map.Entry<String, Integer> entry : filtered.entrySet()) {
+            String tmpString = entry.getKey();
+            Number tmpValue = entry.getValue();
+            XYChart.Data<String, Number> d = new XYChart.Data<>(tmpString, tmpValue);
+            series1.getData().add(d);
+        }
+        barChart.setTitle("Hizkien maiztasuna");
+        barChart.getData().addAll(series1);
+
+        VBox vbox = new VBox(barChart);
+
+        Scene scene = new Scene(vbox, 400, 200);
+
+        primaryStage.setScene(scene);
+        primaryStage.setHeight(300);
+        primaryStage.setWidth(1200);
+
+        primaryStage.show();
     }
 
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        Application.launch(args);
     }
 }
